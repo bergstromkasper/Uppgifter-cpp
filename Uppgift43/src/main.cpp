@@ -39,6 +39,7 @@ int main()
              << "Talet var: " << tal << endl;
         cout << "vill du köra igen?";
         cin >> svar;
+        cin.ignore(255, '\n');
         if (svar == 'J' or svar == 'j')
         {
             q == true;
