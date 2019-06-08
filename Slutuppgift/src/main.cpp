@@ -9,20 +9,13 @@ using namespace std;
 struct Locations
 {
     int location; // 1 - 100
-    int state; // 0 = Water  1 = boat  2 = non-guessable
-};
-
-struct number
-{
-    int loc; 
-    int state; 
+    int state;
 };
 
 
 
-
-// Placerar båtar på spelplanen 
-void drawBoard(char y, int x, int size, char dir){
+// Markerar båtar på spelplanen 
+void markLocation(char y, int x, int size, char dir){
     //Direction
     bool up = false, down = false, left = false, right = false;
     if(dir == 'U' or dir == 'u'){
@@ -74,6 +67,7 @@ void drawBoard(char y, int x, int size, char dir){
         }
     }
 //---------------------------------------
+
 }
 int setup(){
     int carrier = 1;
@@ -101,35 +95,12 @@ cout << (char)i << "  ";
 cout << "Place your boats, location on board and direction. Example: 'A3 UP, J6 DOWN, H9 LEFT, D5 RIGHT'";
 cout <<  endl << "Place carrier: Size 5: ";
 cin >> y >> x >> direction;
-drawBoard(y, x, 5, direction);
-/*
-while (battleship > 0){
-    cout << "Place Battleship, Size 4: ";
+markLocation(y, x, 5, direction);
+
 }
-*/
-}
-
-
-
 int main() {
 setup();
 
 
-
-/* 2 player or computer
-cout << "1 or 2 Players.";
-cin >> players;
-if (players == 1){
-    computer = false;
-} else {
-    computer = true;
-}
-if (computer == true){
-    cout << " ______Computer______";
-} else {
-cout << " ______Player 1______";
-}
-
-*/
 
 }
