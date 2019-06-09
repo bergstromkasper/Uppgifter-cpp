@@ -69,23 +69,18 @@ void markLocation(char y, int x, int size, char dir)
     I = 73 / 8
     J = 74 / 9 */
 
-    int checkLetter = 0;
     int start;
-    bool q = false;
-    while (q == false)
+ for (int i = 0; i < 10; i++)
     {
-        if (y == checkLetter + 65)
+        if (y == i + 65)
         {
-            start = checkLetter * 10 + x;
-            locations[start].state = 1;
             cout << "Start played" << endl;
-            q = true;
+            start = i * 10 + x;
         }
-        checkLetter++;
     }
     if (up)
     {
-        for (int i = 0; i + 1 < size; i++)
+        for (int i = 1; i < size; i++)
         {
             cout << "up played" << endl;
             locations[start - (i * 10)].state = 1;
@@ -102,7 +97,7 @@ void markLocation(char y, int x, int size, char dir)
     }
     else if (left)
     {
-        for (int i = 0; i + 1 < size; i++)
+        for (int i = 1; i < size; i++)
         {
 
             cout << "Left played" << endl;
@@ -111,7 +106,7 @@ void markLocation(char y, int x, int size, char dir)
     }
     else if (right)
     {
-        for (int i = 0; i + 1 < size; i++)
+        for (int i = 1; i < size; i++)
         {
             cout << "Right played" << endl;
             cout << "Count: " << i << endl;
@@ -146,6 +141,7 @@ int setup()
     cout << "Place your boats, location on board and direction. Example: 'A3 UP, J6 DOWN, H9 LEFT, D5 RIGHT'";
     while (carrier > 0)
     {
+        // Efter den har frågat efter Carrier så markerar den location för den men efter så frågar den inte efter Battleship.
         cout << endl
              << "Place carrier: Size 5: ";
         for (int i = carrier; i > 0;)
@@ -153,10 +149,12 @@ int setup()
             char y, direction;
             int x;
             cin >> y >> x >> direction;
+            cin.ignore(255, '\n');
             markLocation(y, x, 5, direction);
             carrier--;
         }
     }
+    // Den gör allting fram tills hit, vet inte varför den inte fortsätter efter den har gjort carrier.
     while (battleship > 0)
     {
         cout << endl
@@ -168,7 +166,6 @@ int setup()
             cin >> y >> x >> direction;
             markLocation(y, x, 4, direction);
             battleship--;
-            cin.ignore(255, '\n');
         }
     }
     cout << endl
