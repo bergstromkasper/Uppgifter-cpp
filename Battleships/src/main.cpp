@@ -4,14 +4,7 @@
 #include <string>
 #include <vector>
 using namespace std;
-/* Hann inte skirva kommentarer om det som inte fungerade nu men kollar mer och lägger på senare. */
 
-//
-int carrier = 1;
-int battleship = 2;
-int cruiser = 3;
-int submarine = 4;
-int destroyer = 5;
 
 // Håller reda på information om varje location
 struct Location
@@ -68,52 +61,129 @@ void markLocation(char y, int x, int size, char dir)
     H = 72 / 7
     I = 73 / 8
     J = 74 / 9 */
-
+    x = x - 1;
     int start;
  for (int i = 0; i < 10; i++)
     {
         if (y == i + 65)
         {
-            cout << "Start played" << endl;
             start = i * 10 + x;
+             if(locations[start].state != 0){
+                cout << "Boats can't overlap or go outside board" << endl;
+                cout << "Place boat again: ";
+                cin >> y >> x >> dir;
+                cin.ignore(255, '\n');
+                markLocation(y, x , size, dir);
+            } else {
+            locations[start].state = 1;
+            }
         }
     }
     if (up)
     {
-        for (int i = 1; i < size; i++)
+        for (int i = 1; i  < size; i++)
         {
-            cout << "up played" << endl;
-            locations[start - (i * 10)].state = 1;
+        if(locations[start - (i * 10)].state != 0){
+                cout << "Boats can't overlap or go outside board" << endl;
+                cout << "Place boat again: ";
+                cin >> y >> x >> dir;
+                cin.ignore(255, '\n');
+                markLocation(y, x , size, dir);
+            } else {
+                locations[start - (i * 10)].state = 1;
+            }
+            
         }
     }
     else if (down)
     {
         for (int i = 1; i < size; i++)
         {
-            cout << "down played" << endl;
-            cout << "Count: " << i << endl;
+         if(locations[start - (i * 10)].state != 0){
+                cout << "Boats can't overlap or go outside board" << endl;
+                cout << "Place boat again: ";
+                cin >> y >> x >> dir;
+                cin.ignore(255, '\n');
+                markLocation(y, x , size, dir);
+            } else {
             locations[start + (i * 10)].state = 1;
+            }
         }
     }
     else if (left)
     {
         for (int i = 1; i < size; i++)
         {
-
-            cout << "Left played" << endl;
+          if(locations[start - (i * 10)].state != 0){
+                cout << "Boats can't overlap or go outside board" << endl;
+                cout << "Place boat again: ";
+                cin >> y >> x >> dir;
+                cin.ignore(255, '\n');
+                markLocation(y, x , size, dir);
+            } else {
             locations[start - i].state = 1;
+            }
         }
     }
     else if (right)
     {
         for (int i = 1; i < size; i++)
         {
-            cout << "Right played" << endl;
-            cout << "Count: " << i << endl;
+          if(locations[start - (i * 10)].state != 0){
+            cout << "Boats can't overlap or go outside board" << endl;
+            cout << "Place boat again: ";
+            cin >> y >> x >> dir;
+            cin.ignore(255, '\n');
+            markLocation(y, x , size, dir);
+        } else {
             locations[start + i].state = 1;
         }
+        }
     }
+    //----------------------------------------------------
 
+
+
+    // Bygg en ny spelplan efter varje ny båt är placerad.
+
+    // Kolla om linux eller windows (Clear för Linux CLS för windows)
+    #ifdef __unix__         
+    #elif defined(_WIN32) || defined(WIN32) 
+    #define OS_Windows
+    #endif
+    #ifdef OS_WINDOWS
+    system("CLS");
+    #else 
+    system("clear");
+    #endif 
+    //--------------------------------------------------
+    
+
+    //1-10 på x axeln
+    cout << "    ";
+    for (int i = 1; i < 11; i++)
+    {
+        cout << i << "  ";
+    }
+    //---------------
+
+    // counter för bokstäver
+    int  counter = 0;
+    for(int i = 0; i < 100; i++){
+        //radbrytning +  bokstäver
+        if(i == 0 || i == 10 || i == 20 || i == 30 || i == 40 || i == 50 || i == 60 || i == 70 || i == 80 || i == 90){
+            int  letterCounter = counter + 65;
+            cout << endl<< (char)letterCounter << "  ";
+            counter++;
+            }
+        if(locations[i].state == 1){
+            cout << "(S)";
+        } else if (locations[i].state == 2){
+            cout << "X  ";
+        } else {
+            cout << " O ";
+        }
+    }
     //---------------------------------------
 }
 
@@ -136,14 +206,19 @@ int setup()
         cout << endl;
     }
     //------------------------
+    // Deklarerar skeppen
+    int carrier = 1;
+    int battleship = 2;
+    int cruiser = 2;
+    int submarine = 2;
+    int destroyer = 3;
 
     // Placera alla båtarna
     cout << "Place your boats, location on board and direction. Example: 'A3 UP, J6 DOWN, H9 LEFT, D5 RIGHT'";
     while (carrier > 0)
     {
-        // Efter den har frågat efter Carrier så markerar den location för den men efter så frågar den inte efter Battleship.
         cout << endl
-             << "Place carrier: Size 5: ";
+             << "Place carrier: Size 5: " << endl;
         for (int i = carrier; i > 0;)
         {
             char y, direction;
@@ -152,51 +227,69 @@ int setup()
             cin.ignore(255, '\n');
             markLocation(y, x, 5, direction);
             carrier--;
+            i--;
         }
     }
-    // Den gör allting fram tills hit, vet inte varför den inte fortsätter efter den har gjort carrier.
     while (battleship > 0)
     {
         cout << endl
-             << "Place 2 battleships: Size 4: ";
+             << "Place 2 battleships: Size 4" << endl;
         for (int i = battleship; i > 0;)
         {
+            cout << endl <<  "Battleship(4): ";
             char y, direction;
             int x;
             cin >> y >> x >> direction;
+            cin.ignore(255, '\n');
             markLocation(y, x, 4, direction);
             battleship--;
+            i--;
         }
     }
-    cout << endl
-         << "Place 3 cruisers: Size 3: ";
-    for (int i = cruiser; i > 0; cruiser--)
-    {
-        char y, direction;
-        int x;
-        cin >> y >> x >> direction;
-        markLocation(y, x, 3, direction);
-        cin.ignore(255, '\n');
+    while(cruiser > 0){
+        cout << endl
+             << "Place 2 cruisers: Size 3" << endl;
+        for (int i = cruiser; i > 0; cruiser--)
+        {
+            cout <<  endl << "Cruiser(3): ";
+            char y, direction;
+            int x;
+            cin >> y >> x >> direction;
+            markLocation(y, x, 3, direction);
+            cin.ignore(255, '\n');
+            cruiser--;
+            i--;
+        }
     }
-    cout << endl
-         << "Place 4 submarines: Size 3: ";
-    for (int i = submarine; i > 0; submarine--)
-    {
-        char y, direction;
-        int x;
-        cin >> y >> x >> direction;
-        markLocation(y, x, 3, direction);
-        cin.ignore(255, '\n');
+    while (submarine > 0){
+        cout << endl
+            << "Place 2 submarines: Size 3" << endl;
+        for (int i = submarine; i > 0; submarine--)
+        {   
+            cout << endl << "Submarine(3): ";
+            char y, direction;
+            int x;
+            cin >> y >> x >> direction;
+            markLocation(y, x, 3, direction);
+            cin.ignore(255, '\n');
+            submarine--;
+            i--;
+        }
     }
-    cout << endl
-         << "Place 5 destroyers: Size 2: ";
-    for (int i = destroyer; i > 0; destroyer--)
-    {
-        char y, direction;
-        int x;
-        cin >> y >> x >> direction;
-        markLocation(y, x, 2, direction);
-        cin.ignore(255, '\n');
+    while(destroyer > 0){
+        cout << endl
+            << "Place 3 destroyers: Size 2" << endl;
+        for (int i = destroyer; i > 0; destroyer--)
+        {
+            cout << endl << "Destroyer(2): ";
+            char y, direction;
+            int x;
+            cin >> y >> x >> direction;
+            markLocation(y, x, 2, direction);
+            cin.ignore(255, '\n');
+            destroyer--;
+            i--;
+        }
     }
 
     //-------------------------------
@@ -206,4 +299,17 @@ int main()
 {
     createLocations();
     setup();
+
+
+
+
+
+/* int counter = 0;
+    for(int i = 0; i < 100; i++){
+        cout << endl << "location: " << locations[i].location << " - State: " << locations[i].state;
+        if(locations[i].state == 1){
+            counter++;
+        }
+    }
+    cout << "Amount marked locations: " << counter; */
 }
