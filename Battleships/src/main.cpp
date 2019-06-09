@@ -152,6 +152,7 @@ int setup()
             cin.ignore(255, '\n');
             markLocation(y, x, 5, direction);
             carrier--;
+            i--;
         }
     }
     // Den gör allting fram tills hit, vet inte varför den inte fortsätter efter den har gjort carrier.
