@@ -63,6 +63,8 @@ void markLocation(char y, int x, int size, char dir)
     J = 74 / 9 */
     x = x - 1;
     int start;
+    bool ignoreMarks = false;
+    int toMark[size];
  for (int i = 0; i < 10; i++)
     {
         if (y == i + 65)
@@ -73,28 +75,33 @@ void markLocation(char y, int x, int size, char dir)
                 cout << "Place boat again: ";
                 cin >> y >> x >> dir;
                 cin.ignore(255, '\n');
+                ignoreMarks = true;
                 markLocation(y, x , size, dir);
             } else {
-            locations[start].state = 1;
+            toMark[0] = locations[start].location;
             }
         }
     }
+    // Up
     if (up)
     {
         for (int i = 1; i  < size; i++)
         {
-        if(locations[start - (i * 10)].state != 0){
+            if(locations[start - (i * 10)].state != 0){
                 cout << "Boats can't overlap or go outside board" << endl;
                 cout << "Place boat again: ";
                 cin >> y >> x >> dir;
                 cin.ignore(255, '\n');
+                ignoreMarks = true;
                 markLocation(y, x , size, dir);
             } else {
-                locations[start - (i * 10)].state = 1;
-            }
+                toMark[i] = locations[start - (i * 10)].location;
+           }
             
-        }
     }
+}
+
+    // Down
     else if (down)
     {
         for (int i = 1; i < size; i++)
@@ -104,12 +111,14 @@ void markLocation(char y, int x, int size, char dir)
                 cout << "Place boat again: ";
                 cin >> y >> x >> dir;
                 cin.ignore(255, '\n');
+                ignoreMarks = true;
                 markLocation(y, x , size, dir);
             } else {
-            locations[start + (i * 10)].state = 1;
+            toMark[i] = locations[start + (i * 10)].location;
             }
         }
     }
+    // Left
     else if (left)
     {
         for (int i = 1; i < size; i++)
@@ -119,12 +128,14 @@ void markLocation(char y, int x, int size, char dir)
                 cout << "Place boat again: ";
                 cin >> y >> x >> dir;
                 cin.ignore(255, '\n');
+                ignoreMarks = true;
                 markLocation(y, x , size, dir);
             } else {
-            locations[start - i].state = 1;
+                toMark[i] = locations[start - i].location;
             }
         }
     }
+    // Right
     else if (right)
     {
         for (int i = 1; i < size; i++)
@@ -134,11 +145,20 @@ void markLocation(char y, int x, int size, char dir)
             cout << "Place boat again: ";
             cin >> y >> x >> dir;
             cin.ignore(255, '\n');
+            ignoreMarks = true;
             markLocation(y, x , size, dir);
         } else {
-            locations[start + i].state = 1;
+            toMark[i] = locations[start + i].location;
         }
         }
+    }
+    if (ignoreMarks == false){
+        for(int i = 0; i < size; i++){
+            cout << "Marked." << endl;
+            locations[toMark[i] - 1].state = 1;
+        }
+    } else {
+        cout << "Skipped mark" << endl;
     }
     //----------------------------------------------------
 
@@ -147,7 +167,7 @@ void markLocation(char y, int x, int size, char dir)
     // Bygg en ny spelplan efter varje ny båt är placerad.
 
     // Kolla om linux eller windows (Clear för Linux CLS för windows)
-    #ifdef __unix__         
+      #ifdef __unix__         
     #elif defined(_WIN32) || defined(WIN32) 
     #define OS_Windows
     #endif
@@ -155,7 +175,7 @@ void markLocation(char y, int x, int size, char dir)
     system("CLS");
     #else 
     system("clear");
-    #endif 
+    #endif
     //--------------------------------------------------
     
 
