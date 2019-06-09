@@ -16,17 +16,57 @@ struct Location
 // Deklarera en vector som sparar Location i "locations"
 vector<Location> locations;
 // Skapar 100 Location som sparar en location på 1-100 och en state för varje.
+Location curr;
 void createLocations()
 {
     for (int i = 0; i < 100; i++)
     {
-        Location curr;
         curr.location = i + 1;
         curr.state = 0;
         locations.push_back(curr);
     }
 }
 
+void draw(){
+    // Bygg en ny spelplan efter varje ny båt är placerad/skjuten.
+    // Kolla om linux eller windows (Clear för Linux CLS för windows)
+    #ifdef __unix__         
+    #elif defined(_WIN32) || defined(WIN32) 
+    #define OS_Windows
+    #endif
+    #ifdef OS_WINDOWS
+    system("CLS");
+    #else 
+    system("clear");
+    #endif 
+    //--------------------------------------------------
+    //1-10 på x axeln
+    cout << endl << endl << "    ";
+    for (int i = 1; i < 11; i++)
+    {
+        cout << i << "  ";
+    }
+    //---------------
+
+    // counter för bokstäver
+    int  counter = 0;
+    for(int i = 0; i < 100; i++){
+        //radbrytning +  bokstäver
+        if(i == 0 || i == 10 || i == 20 || i == 30 || i == 40 || i == 50 || i == 60 || i == 70 || i == 80 || i == 90){
+            int  letterCounter = counter + 65;
+            cout << endl<< (char)letterCounter << "  ";
+            counter++;
+            }
+        if(locations[i].state == 1){
+            cout << "(S)";
+        } else if (locations[i].state == 2){
+            cout << "X  ";
+        } else {
+            cout << " O ";
+        }
+    }
+    //---------------------------------------
+}
 // Markerar båtar på spelplanen
 void markLocation(char y, int x, int size, char dir)
 {
@@ -71,14 +111,9 @@ void markLocation(char y, int x, int size, char dir)
         {
             start = i * 10 + x;
              if(locations[start].state != 0){
-                cout << "Boats can't overlap or go outside board" << endl;
-                cout << "Place boat again: ";
-                cin >> y >> x >> dir;
-                cin.ignore(255, '\n');
                 ignoreMarks = true;
-                markLocation(y, x , size, dir);
             } else {
-            toMark[0] = locations[start].location;
+                toMark[0] = locations[start].location;
             }
         }
     }
@@ -88,33 +123,22 @@ void markLocation(char y, int x, int size, char dir)
         for (int i = 1; i  < size; i++)
         {
             if(locations[start - (i * 10)].state != 0){
-                cout << "Boats can't overlap or go outside board" << endl;
-                cout << "Place boat again: ";
-                cin >> y >> x >> dir;
-                cin.ignore(255, '\n');
                 ignoreMarks = true;
-                markLocation(y, x , size, dir);
             } else {
                 toMark[i] = locations[start - (i * 10)].location;
            }
             
     }
 }
-
     // Down
     else if (down)
     {
         for (int i = 1; i < size; i++)
         {
-         if(locations[start - (i * 10)].state != 0){
-                cout << "Boats can't overlap or go outside board" << endl;
-                cout << "Place boat again: ";
-                cin >> y >> x >> dir;
-                cin.ignore(255, '\n');
+         if(locations[start + (i * 10)].state != 0){
                 ignoreMarks = true;
-                markLocation(y, x , size, dir);
             } else {
-            toMark[i] = locations[start + (i * 10)].location;
+                toMark[i] = locations[start + (i * 10)].location;
             }
         }
     }
@@ -123,13 +147,8 @@ void markLocation(char y, int x, int size, char dir)
     {
         for (int i = 1; i < size; i++)
         {
-          if(locations[start - (i * 10)].state != 0){
-                cout << "Boats can't overlap or go outside board" << endl;
-                cout << "Place boat again: ";
-                cin >> y >> x >> dir;
-                cin.ignore(255, '\n');
+          if(locations[start - i].state != 0){
                 ignoreMarks = true;
-                markLocation(y, x , size, dir);
             } else {
                 toMark[i] = locations[start - i].location;
             }
@@ -140,91 +159,35 @@ void markLocation(char y, int x, int size, char dir)
     {
         for (int i = 1; i < size; i++)
         {
-          if(locations[start - (i * 10)].state != 0){
-            cout << "Boats can't overlap or go outside board" << endl;
-            cout << "Place boat again: ";
-            cin >> y >> x >> dir;
-            cin.ignore(255, '\n');
+          if(locations[start + i].state != 0){
             ignoreMarks = true;
-            markLocation(y, x , size, dir);
         } else {
             toMark[i] = locations[start + i].location;
+            cout << (locations[start + i].location % 10) + size - i << endl;
         }
         }
     }
+    
+
+    // Om den inte overlappar så markar den annars så gör du om.
     if (ignoreMarks == false){
         for(int i = 0; i < size; i++){
-            cout << "Marked." << endl;
             locations[toMark[i] - 1].state = 1;
         }
     } else {
-        cout << "Skipped mark" << endl;
+        cout << "Boats can't overlap or go outside board" << endl;
+        cout << "Place boat again: ";   
+        cin >> y >> x >> dir;
+        cin.ignore(255, '\n');
+        markLocation(y, x , size, dir);
     }
+draw();
     //----------------------------------------------------
-
-
-
-    // Bygg en ny spelplan efter varje ny båt är placerad.
-
-    // Kolla om linux eller windows (Clear för Linux CLS för windows)
-      #ifdef __unix__         
-    #elif defined(_WIN32) || defined(WIN32) 
-    #define OS_Windows
-    #endif
-    #ifdef OS_WINDOWS
-    system("CLS");
-    #else 
-    system("clear");
-    #endif
-    //--------------------------------------------------
-    
-
-    //1-10 på x axeln
-    cout << "    ";
-    for (int i = 1; i < 11; i++)
-    {
-        cout << i << "  ";
-    }
-    //---------------
-
-    // counter för bokstäver
-    int  counter = 0;
-    for(int i = 0; i < 100; i++){
-        //radbrytning +  bokstäver
-        if(i == 0 || i == 10 || i == 20 || i == 30 || i == 40 || i == 50 || i == 60 || i == 70 || i == 80 || i == 90){
-            int  letterCounter = counter + 65;
-            cout << endl<< (char)letterCounter << "  ";
-            counter++;
-            }
-        if(locations[i].state == 1){
-            cout << "(S)";
-        } else if (locations[i].state == 2){
-            cout << "X  ";
-        } else {
-            cout << " O ";
-        }
-    }
-    //---------------------------------------
 }
+
 
 int setup()
 {
-    //Första spelplan så man kan se var man ska sätta sina båtar.
-    cout << "   ";
-    for (int i = 1; i < 11; i++)
-    {
-        cout << i << "  ";
-    }
-    cout << endl;
-    for (int i = 65; i < 75; i++)
-    {
-        cout << (char)i << "  ";
-        for (int j = 0; j < 10; j++)
-        {
-            cout << "O  ";
-        }
-        cout << endl;
-    }
     //------------------------
     // Deklarerar skeppen
     int carrier = 1;
@@ -275,8 +238,8 @@ int setup()
             char y, direction;
             int x;
             cin >> y >> x >> direction;
-            markLocation(y, x, 3, direction);
             cin.ignore(255, '\n');
+            markLocation(y, x, 3, direction);
             cruiser--;
             i--;
         }
@@ -290,8 +253,8 @@ int setup()
             char y, direction;
             int x;
             cin >> y >> x >> direction;
-            markLocation(y, x, 3, direction);
             cin.ignore(255, '\n');
+            markLocation(y, x, 3, direction);
             submarine--;
             i--;
         }
@@ -305,8 +268,8 @@ int setup()
             char y, direction;
             int x;
             cin >> y >> x >> direction;
-            markLocation(y, x, 2, direction);
             cin.ignore(255, '\n');
+            markLocation(y, x, 2, direction);
             destroyer--;
             i--;
         }
@@ -314,22 +277,30 @@ int setup()
 
     //-------------------------------
 }
+void game(){
+    int userGuess;
+
+}
 
 int main()
 {
+        //Första spelplan så man kan se var man ska sätta sina båtar.
+    cout << "   ";
+    for (int i = 1; i < 11; i++)
+    {
+        cout << i << "  ";
+    }
+    cout << endl;
+    for (int i = 65; i < 75; i++)
+    {
+        cout << (char)i << "  ";
+        for (int j = 0; j < 10; j++)
+        {
+            cout << "O  ";
+        }
+        cout << endl;
+    }
     createLocations();
     setup();
-
-
-
-
-
-/* int counter = 0;
-    for(int i = 0; i < 100; i++){
-        cout << endl << "location: " << locations[i].location << " - State: " << locations[i].state;
-        if(locations[i].state == 1){
-            counter++;
-        }
-    }
-    cout << "Amount marked locations: " << counter; */
+    game();
 }
