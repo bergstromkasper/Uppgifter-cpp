@@ -2,17 +2,28 @@
 #include <ctime>
 #include <cstdlib>
 #include <string>
+#include <vector> 
 using namespace std;
 
 
 // Håller reda på information om varje location
-struct Locations
+struct Location
 {
     int location; // 1 - 100
     int state;
 };
 
+vector<Location> locations;
 
+void createLocations() {
+	for (int i = 0; i < 100; i++) {
+		Location curr;
+		curr.location = i + 1;
+		curr.state = 0;
+		
+		locations.push_back(curr);
+	}
+}
 
 // Markerar båtar på spelplanen 
 void markLocation(char y, int x, int size, char dir){
@@ -48,20 +59,20 @@ void markLocation(char y, int x, int size, char dir){
           start = i * 10 + x;
         }
     }
-    if(up == true){
+    if(up){
         for(int i = 1; i < size; i++){
-            cout << "Up" << start - (i * 10) << endl;
+            locations[start - (i * 10)].state = 1;
         }
-    } else if (down == true){
+    } else if (down){
         for(int i = 1; i < size; i++){
             cout << "Down" << start + (i * 10) << endl;
         }
         
-    }else if (left == true){
+    }else if (left){
         for(int i = 1; i < size; i++){
             cout << "Left" << start - i << endl;
         }
-    }else if (right == true){
+    }else if (right){
         for(int i = 1; i < size; i++){ 
             cout << "Right" << start + i << endl;
         }
@@ -99,8 +110,9 @@ markLocation(y, x, 5, direction);
 
 }
 int main() {
-setup();
-
-
-
+ setup();
+	createLocations();
+	cout << locations[1].location;
+	locations[1].state = 1;
+cout << locations[1].state;
 }
