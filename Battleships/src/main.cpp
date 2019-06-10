@@ -26,9 +26,7 @@ void createLocations()
         locations.push_back(curr);
     }
 }
-
-void draw(){
-    // Bygg en ny spelplan efter varje ny båt är placerad/skjuten.
+void clearScreen(){
     // Kolla om linux eller windows (Clear för Linux CLS för windows)
     #ifdef __unix__         
     #elif defined(_WIN32) || defined(WIN32) 
@@ -38,16 +36,19 @@ void draw(){
     system("CLS");
     #else 
     system("clear");
-    #endif 
-    //--------------------------------------------------
+    #endif   
+
+}
+
+void draw(){
+    // Bygg en ny spelplan efter varje ny båt är placerad/skjuten.
     //1-10 på x axeln
+    clearScreen();
     cout << endl << endl << "    ";
     for (int i = 1; i < 11; i++)
     {
         cout << i << "  ";
     }
-    //---------------
-
     // counter för bokstäver
     int  counter = 0;
     for(int i = 0; i < 100; i++){
@@ -65,33 +66,35 @@ void draw(){
             cout << " O ";
         }
     }
-    //---------------------------------------
 }
+
 // Markerar båtar på spelplanen
-void markLocation(char y, int x, int size, char dir)
+void markLocation(char yAxis, int xAxis, int size, char dir)
 {
     //Direction
+    dir = (toupper(dir));
     bool up = false, down = false, left = false, right = false;
-    if (dir == 'U' or dir == 'u')
+    if (dir == 'U')
     {
         up = true;
     }
-    else if (dir == 'D' or dir == 'd')
+    else if (dir == 'D')
     {
         down = true;
     }
-    else if (dir == 'L' or dir == 'l')
+    else if (dir == 'L')
     {
         left = true;
     }
-    else if (dir == 'R' or dir == 'r')
+    else if (dir == 'R')
     {
         right = true;
     }
     // --------------------
 
     //Markera locations för båten du placerat
-    /* A = 65 / 0
+    /* 
+    A = 65 / 0
     B = 66 / 1
     C = 67 / 2
     D = 68 / 3
@@ -101,15 +104,16 @@ void markLocation(char y, int x, int size, char dir)
     H = 72 / 7
     I = 73 / 8
     J = 74 / 9 */
-    x = x - 1;
+    xAxis = xAxis - 1;
     int start;
     bool ignoreMarks = false;
     int toMark[size];
+    yAxis = (toupper(yAxis));
  for (int i = 0; i < 10; i++)
     {
-        if (y == i + 65)
+        if (yAxis == i + 65)
         {
-            start = i * 10 + x;
+            start = i * 10 + xAxis;
              if(locations[start].state != 0){
                 ignoreMarks = true;
             } else {
@@ -122,7 +126,8 @@ void markLocation(char y, int x, int size, char dir)
     {
         for (int i = 1; i  < size; i++)
         {
-            if(locations[start - (i * 10)].state != 0){
+            // Om resultatet blir mindre än 0 så är båten utanför spelplanen
+            if(locations[start - (i * 10)].state != 0 or start - (i * 10) < 0){
                 ignoreMarks = true;
             } else {
                 toMark[i] = locations[start - (i * 10)].location;
@@ -135,7 +140,7 @@ void markLocation(char y, int x, int size, char dir)
     {
         for (int i = 1; i < size; i++)
         {
-         if(locations[start + (i * 10)].state != 0){
+         if(locations[start + (i * 10)].state != 0 or start + (i * 10) > 100){
                 ignoreMarks = true;
             } else {
                 toMark[i] = locations[start + (i * 10)].location;
@@ -145,9 +150,11 @@ void markLocation(char y, int x, int size, char dir)
     // Left
     else if (left)
     {
+        int checkLeft;
         for (int i = 1; i < size; i++)
         {
-          if(locations[start - i].state != 0){
+        checkLeft = (start - i) % 10 - size + i;
+          if(locations[start - i].state != 0 or checkLeft < -1){
                 ignoreMarks = true;
             } else {
                 toMark[i] = locations[start - i].location;
@@ -157,13 +164,14 @@ void markLocation(char y, int x, int size, char dir)
     // Right
     else if (right)
     {
+        int checkRight;
         for (int i = 1; i < size; i++)
         {
-          if(locations[start + i].state != 0){
+        checkRight = (start + i) % 10 + size - i;
+          if(locations[start + i].state != 0 or checkRight > 10 or start % 10 + size - i > 10){
             ignoreMarks = true;
         } else {
             toMark[i] = locations[start + i].location;
-            cout << (locations[start + i].location % 10) + size - i << endl;
         }
         }
     }
@@ -177,9 +185,9 @@ void markLocation(char y, int x, int size, char dir)
     } else {
         cout << "Boats can't overlap or go outside board" << endl;
         cout << "Place boat again: ";   
-        cin >> y >> x >> dir;
+        cin >> yAxis >> xAxis >> dir;
         cin.ignore(255, '\n');
-        markLocation(y, x , size, dir);
+        markLocation(yAxis, xAxis , size, dir);
     }
 draw();
     //----------------------------------------------------
