@@ -66,8 +66,8 @@ void clearScreen(){
 void draw(){
     // Bygg en ny spelplan efter varje ny båt är placerad/skjuten.
     //1-10 på x axeln
-    clearScreen(); 
-    cout << endl << "--------------Player-------------" << endl << "    ";
+     clearScreen();
+     cout << endl << "--------------Player-------------" << endl << "    ";
     for (int i = 1; i < 11; i++)
     {
         cout << i << "  ";
@@ -108,7 +108,7 @@ void draw(){
             AIcounter++;
             }
         if(AIlocations[i].state == 1){
-            cout << "(S)";
+            cout << " O ";
         } else if (AIlocations[i].state == 2){
             cout << "{X}";
         } else if (AIlocations[i].state == 3){
@@ -118,28 +118,20 @@ void draw(){
         }
     }
 }
-
 bool AImarking;
-// Markerar båtar på spelplanen
+// Marks boat for draw
 void markLocation(char yAxis, int xAxis, int size, char dir)
 {
-    //Direction
+    //Decides direction of boat.
     dir = (toupper(dir));
     bool up = false, down = false, left = false, right = false;
-    if (dir == 'U')
-    {
+    if (dir == 'U') {
         up = true;
-    }
-    else if (dir == 'D')
-    {
+    } else if (dir == 'D'){
         down = true;
-    }
-    else if (dir == 'L')
-    {
+    } else if (dir == 'L'){
         left = true;
-    }
-    else if (dir == 'R')
-    {
+    } else if (dir == 'R') {
         right = true;
     }
     // --------------------
@@ -152,7 +144,6 @@ void markLocation(char yAxis, int xAxis, int size, char dir)
         userMarking = true;
     }
 
-    //Markera locations för båten du placerat
     /* 
     A = 65 / 0
     B = 66 / 1
@@ -164,45 +155,54 @@ void markLocation(char yAxis, int xAxis, int size, char dir)
     H = 72 / 7
     I = 73 / 8
     J = 74 / 9 */
+    //Transform xAxis input to same program uses
     xAxis = xAxis - 1;
     int start;
     bool ignoreMarks = false;
     int toMark[size];
+    //Changes player input to a number from 1 to 100
     yAxis = (toupper(yAxis));
     for (int i = 0; i < 10; i++)
     {
-        if (yAxis == i + 65)
-        {
+        if (yAxis == i + 65){
             start = i * 10 + xAxis;
+            //------------------
+            //Marks starting location
             if(userMarking){
-                if(locations[start].state != 0){
+                if(locations[start].state != 0 or locations[start - 1].state != 0 or locations[start + 1].state != 0 or locations[start + 10].state != 0 or locations[start - 10].state != 0){
                     ignoreMarks = true;
                 } else{
                     toMark[0] = locations[start].location;
                 } 
-            } else {
-                if(AIlocations[start].state != 0){
+            } else {//          START                               LEFT                                RIGHT                               DOWN                                      UP
+                if(AIlocations[start].state != 0 or AIlocations[start - 1].state != 0 or AIlocations[start + 1].state != 0 or AIlocations[start + 10].state != 0 or AIlocations[start - 10].state != 0){
                     ignoreMarks =  true;
                 } else {
                     toMark[0] = AIlocations[start].location;
-                }
-                
+                }    
             }
         }
     }
+    //--------------------------
+
+
     // Up
     if (up)
     {
+        bool boatClear = true;
         for (int i = 1; i  < size; i++)
-        {   // Om resultatet blir mindre än 0 så är båten utanför spelplanen
-            if(userMarking){
+        {   //               LEFT                                         RIGHT                                             UP
+        if(AIlocations[start - (i * 10) - 1].state != 0 or AIlocations[start - (i * 10) + 1].state != 0 or AIlocations[start - (size * 10)].state != 0 or AIlocations[start - (size * 10) - 10].state != 0){
+                boatClear = false;
+            }
+            if(userMarking){// if less than 0 its outside play area
                 if(locations[start - (i * 10)].state != 0 or start - (i * 10) < 0){
                     ignoreMarks = true;
                 } else {
                     toMark[i] = locations[start - (i * 10)].location;
                 }
             } else {
-                if(AIlocations[start - (i * 10)].state != 0 or start - (i * 10) < 0){
+                if(AIlocations[start - (i * 10)].state != 0 or start - (i * 10) < 0 or boatClear == false){
                     ignoreMarks = true;
                 } else {
                     toMark[i] =  AIlocations[start - (i * 10)].location;
@@ -212,7 +212,12 @@ void markLocation(char yAxis, int xAxis, int size, char dir)
     } // Down
     else if (down)
     {
-        for (int i = 1; i < size; i++){
+        bool boatClear = true;
+        for (int i = 1; i < size; i++)
+        {//                   LEFT                                              RIGHT                                           DOWN
+            if(AIlocations[start + (i * 10) - 1].state != 0 or AIlocations[start + (i * 10) + 1].state != 0 or AIlocations[start + (size * 10)].state != 0 or AIlocations[start + (size * 10) + 10].state != 0){
+                boatClear = false;
+            }
             if(userMarking){
                 if(locations[start + (i * 10)].state != 0 or start + (i * 10) > 100){
                     ignoreMarks = true;
@@ -220,7 +225,7 @@ void markLocation(char yAxis, int xAxis, int size, char dir)
                     toMark[i] = locations[start + (i * 10)].location;
                 }
             } else {
-                if(AIlocations[start + (i * 10)].state != 0 or start + (i * 10) > 100){
+                if(AIlocations[start + (i * 10)].state != 0 or start + (i * 10) > 100 or boatClear == false){
                     ignoreMarks = true;
                 } else {
                     toMark[i] = AIlocations[start + (i * 10)].location;
@@ -231,16 +236,21 @@ void markLocation(char yAxis, int xAxis, int size, char dir)
     else if (left)
     {
         int checkLeft;
-        for (int i = 1; i < size; i++){
+        bool boatClear = true;
+        for (int i = 1; i < size; i++)
+        {//                     LEFT                                           UP                                              DOWN
+            if(AIlocations[(start - size) - 1].state != 0 or AIlocations[(start - i) - 10].state != 0 or AIlocations[(start -i) + 10].state != 0){
+                boatClear = false;
+            }
             checkLeft = (start - i) % 10 - size + i;
             if(userMarking){
-                if(locations[start - i].state != 0 or checkLeft < -1){
+                if(locations[start - i].state != 0 or checkLeft <= -1 or start % 10 == 0){
                     ignoreMarks = true;
                 } else {
                     toMark[i] = locations[start - i].location;
                 }
             } else {
-                if(AIlocations[start - i].state != 0 or checkLeft < -1){
+                if(AIlocations[start - i].state != 0 or checkLeft <= -1 or boatClear == false or start % 10 == 0){
                     ignoreMarks = true;
                 } else {
                     toMark[i] = AIlocations[start -i].location;
@@ -251,23 +261,28 @@ void markLocation(char yAxis, int xAxis, int size, char dir)
     else if (right)
     {
         int checkRight;
-        for (int i = 1; i < size; i++){
+        bool boatClear = true;
+        for (int i = 1; i < size; i++)
+        {//                 RIGHT                                        UP                                          DOWN
+            if(AIlocations[(start + size) + 1].state != 0 or AIlocations[(start + i) - 10].state != 0 or AIlocations[(start + i) + 10].state != 0 or AIlocations[(start + i) + 1].state){
+                boatClear = false;
+            }
             checkRight = (start + i) % 10 + size - i;
             if(userMarking){
-                if(locations[start + i].state != 0 or checkRight > 10 or start % 10 + size - i > 10){
+                if(locations[start + i].state != 0 or checkRight > 10 or start % 10 + size - i > 10 or start % 10 == 1){
                     ignoreMarks = true;
                 } else {
                     toMark[i] = locations[start + i].location;
                 }
             } else {
-                if(AIlocations[start + i].state != 0 or checkRight > 10 or start % 10 + size - i > 10){
+                if(AIlocations[start + i].state != 0 or checkRight > 10 or start % 10 + size - i > 10 or boatClear == false  or start % 10 == 1){
                     ignoreMarks = true;
                 } else {
                     toMark[i] = AIlocations[start + i].location;
                 }
             }
         }
-    }
+    } 
 
     // Om den inte overlappar så markar den annars så gör du om.
     if (ignoreMarks == false){
@@ -278,6 +293,7 @@ void markLocation(char yAxis, int xAxis, int size, char dir)
                 AIlocations[toMark[i] - 1]. state = 1;
                 }
             }
+            //Reduce AI boats
             if(userMarking == false){
             if(size == 5){
                 AIcarrier--;
@@ -292,20 +308,24 @@ void markLocation(char yAxis, int xAxis, int size, char dir)
                 } 
             }
         } else {
+            //If boats overlap replace
         if (userMarking){
-            cout << "Boats can't overlap or go outside board" << endl;
+            clearScreen();
+            draw();
+            cout << endl << "Boats can't overlap, be right next to eachother, or go outside board" << endl;
             cout << "Place boat again: ";   
             cin >> yAxis >> xAxis >> dir;
             cin.ignore(255, '\n');
             markLocation(yAxis, xAxis , size, dir);
         }
     }
+    //If player is placing draw after every boat
     if(userMarking){
         draw();
+    //If computer is placing draw after all boats are places
     } else if (AIcarrier == 0 && AIbattleship == 0 && AIcruiser == 0 && AIsubmarine == 0 && AIdestroyer == 0){
         draw();
     }
-
 }
 
 // Randomizes AI boat placement
@@ -328,6 +348,7 @@ tuple<int, int, char> randomTuple(){
 }
 
 int AIsetup(){
+    cout << "Generating opponent...";
     AImarking = true;
     while(AIcarrier > 0){
         auto carrier = randomTuple();
@@ -357,8 +378,6 @@ int AIsetup(){
         auto destroyer = randomTuple();
         markLocation(char(get<0>(destroyer)), get<1>(destroyer), 2, get<2>(destroyer));
     }
-
-
 }
 
 
@@ -578,6 +597,7 @@ if(notInProgress){
 
 int main()
 {
+    clearScreen();
     srand(time(0));
         //Första spelplan så man kan se var man ska sätta sina båtar.
     cout << "   ";
@@ -596,7 +616,7 @@ int main()
         cout << endl;
     }
     createLocations();
-    setup(); 
-    AIsetup(); 
+    setup();    
+    AIsetup();  
     game();
 }
