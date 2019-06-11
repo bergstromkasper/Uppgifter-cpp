@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <unistd.h>
 #include <tuple>
 using namespace std;
 
@@ -18,6 +19,8 @@ struct AILocation
     int state;
 };
 int AIsetup();
+int playerGuess();
+void game();
 // Deklarera en vector som sparar Location i "locations"
 vector<Location> locations;
 vector<AILocation> AIlocations;
@@ -81,7 +84,9 @@ void draw(){
         if(locations[i].state == 1){
             cout << "(S)";
         } else if (locations[i].state == 2){
-            cout << "X  ";
+            cout << "{X}";
+        } else if (locations[i].state == 3){
+            cout << " / ";
         } else {
             cout << " O ";
         }
@@ -105,7 +110,9 @@ void draw(){
         if(AIlocations[i].state == 1){
             cout << "(S)";
         } else if (AIlocations[i].state == 2){
-            cout << "X  ";
+            cout << "{X}";
+        } else if (AIlocations[i].state == 3){
+            cout << " / ";
         } else {
             cout << " O ";
         }
@@ -274,10 +281,8 @@ void markLocation(char yAxis, int xAxis, int size, char dir)
             if(userMarking == false){
             if(size == 5){
                 AIcarrier--;
-                cout << "carrier reduced";
                 } else if (size == 4){
                     AIbattleship--;
-                    cout << "Battleship reduced";
                 } else if (size == 3 && cruiserMark == true){
                     AIcruiser--;
                  } else if (size == 3 && cruiserMark == false){
@@ -293,12 +298,6 @@ void markLocation(char yAxis, int xAxis, int size, char dir)
             cin >> yAxis >> xAxis >> dir;
             cin.ignore(255, '\n');
             markLocation(yAxis, xAxis , size, dir);
-        } else {
-            cout << "Carrier: " << AIcarrier << endl;
-            cout << "battleship: " << AIbattleship << endl;
-             cout << "cruiser: " << AIcruiser << endl;
-            cout << "Submarine: " << AIsubmarine << endl;
-            cout << "Destroyer: " << AIdestroyer << endl; 
         }
     }
     if(userMarking){
@@ -453,8 +452,127 @@ int setup()
 
     //-------------------------------
 }
+bool gameOver = false;
+int aiGuess(){
+    draw();
+    bool aiGuessing = true;
+    int aiGuess;
+    aiGuess = rand() % 100 + 1;
+while (aiGuessing){
+    if(locations[aiGuess].state == 3){
+        aiGuess =  rand() % 100 + 1;
+    }else if (locations[aiGuess].state == 1){
+        int hitdir;
+        cout << endl << "Computer guessed: " << aiGuess << endl;
+        locations[aiGuess].state = 2;
+        hitdir = rand() % 4 + 1;
+        if(hitdir == 1){
+            aiGuess = aiGuess - 10;
+        } else if (hitdir == 2){
+            aiGuess = aiGuess + 1;
+        } else if (hitdir == 3){
+            aiGuess = aiGuess + 10;
+        } else if (hitdir == 4){
+            aiGuess = aiGuess - 1;
+        }
+        cout << endl << "Computer hit!" << endl << "Computer guesses again." << endl;
+        usleep(1000000);
+    } else {
+        aiGuessing = false;
+        cout << endl <<"Computer guessed: " << aiGuess << endl;
+        locations[aiGuess].state = 3;
+        cout << "Computer missed." << endl;
+        usleep(1000000);
+        if(gameOver == false){
+            playerGuess();
+        }
+    }
+}
+}
+int playerGuess(){
+    draw();
+    char yGuess;
+    int xGuess;
+    int locGuess;
+    cout << endl << "Your turn!" << endl << "Guess a location (A3, G4, J8):" << endl;
+    cin >> yGuess >> xGuess;
+    //translate guess to location
+    yGuess = (toupper(yGuess));
+    for (int i = 0; i < 10; i++)
+    {
+        if (yGuess == i + 65)
+        {
+            locGuess = i * 10 + xGuess;
+        }
+    }
+    //if hit change state to hit instead of ship.
+    if(AIlocations[locGuess - 1].state == 1){
+        AIlocations[locGuess - 1].state = 2;
+        draw();
+        cout << endl << "Hit!";
+        cout << endl << "Guess again.";
+        usleep(1000000);
+        game();
+        if(gameOver == false){
+            playerGuess();
+        }
+    } else {
+        AIlocations[locGuess - 1].state = 3;
+        draw();
+        cout <<endl << "Miss" << endl;
+        usleep(1000000);
+        game();
+        if(gameOver == false){
+            aiGuess();
+        }
+    }
+
+}
+bool notInProgress = true;
 void game(){
-    int userGuess;
+    int diceRoll;
+    //random starting guess
+if(notInProgress){
+    notInProgress = false;
+    cout << endl << "Rolling dice.." << endl;
+    diceRoll  = rand() % 2 + 1;
+    if (diceRoll == 1){
+        cout << "Player starts." << endl;
+        usleep(1000000);
+        playerGuess();
+    } else if (diceRoll == 2){
+        cout << "Computer starts." << endl;
+        usleep(1000000);
+        aiGuess();
+    }
+} else {
+    int AIboatCounter = 0;
+    int playerBoatCounter = 0;
+    for(int i = 0; i < 100; i++){
+        if(AIlocations[i].state == 1){
+            AIboatCounter++;
+            cout << "Counter++" << endl;
+        }
+        }
+        if (AIboatCounter == 0){
+            draw();
+            gameOver = true;
+            cout << endl <<"You win!";
+            return;
+    }
+    for(int i = 0; i < 100; i++){
+        if(locations[i].state == 1){
+            playerBoatCounter++;
+            cout << "Counter++" << endl;
+        }
+        }
+        if (playerBoatCounter == 0){
+            draw();
+            gameOver = true;
+            cout << endl << "You lose.";
+            return;
+    }
+}
 
 }
 
@@ -479,6 +597,6 @@ int main()
     }
     createLocations();
     setup(); 
-    AIsetup();
+    AIsetup(); 
     game();
 }
